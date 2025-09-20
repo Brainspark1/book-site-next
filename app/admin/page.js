@@ -19,23 +19,23 @@ export default function AdminPage() {
           .includes(lower)
       );
     }
-    setSubmissions(data.reverse());
+    // reverse only for display
+    setSubmissions([...data].reverse());
   };
 
-  const approve = (index) => {
+  const updateSubmission = (id, changes) => {
     let data = JSON.parse(localStorage.getItem("submissions")) || [];
-    data[index].approved = true;
-    data[index].revoked = false;
+    data = data.map((s) => (s["student-id"] === id ? { ...s, ...changes } : s));
     localStorage.setItem("submissions", JSON.stringify(data));
     loadSubmissions(query);
   };
 
-  const revoke = (index) => {
-    let data = JSON.parse(localStorage.getItem("submissions")) || [];
-    data[index].approved = false;
-    data[index].revoked = true;
-    localStorage.setItem("submissions", JSON.stringify(data));
-    loadSubmissions(query);
+  const approve = (id) => {
+    updateSubmission(id, { approved: true, revoked: false });
+  };
+
+  const revoke = (id) => {
+    updateSubmission(id, { approved: false, revoked: true });
   };
 
   return (
@@ -56,8 +56,11 @@ export default function AdminPage() {
 
       {submissions.length === 0 && <p>No submissions yet.</p>}
 
-      {submissions.map((s, i) => (
-        <div key={i} className="bg-[#1e1e1e] p-4 mb-4 rounded shadow-md">
+      {submissions.map((s) => (
+        <div
+          key={s["student-id"]}
+          className="bg-[#1e1e1e] p-4 mb-4 rounded shadow-md"
+        >
           <p>
             <strong>ID:</strong> {s["student-id"]}
           </p>
@@ -79,7 +82,7 @@ export default function AdminPage() {
           </p>
           {!s.revoked && !s.approved && (
             <button
-              onClick={() => approve(i)}
+              onClick={() => approve(s["student-id"])}
               className="mt-2 px-4 py-1 rounded bg-[#4dabf7] hover:bg-[#339af0]"
             >
               Approve
@@ -87,7 +90,7 @@ export default function AdminPage() {
           )}
           {s.approved && (
             <button
-              onClick={() => revoke(i)}
+              onClick={() => revoke(s["student-id"])}
               className="mt-2 ml-2 px-4 py-1 rounded bg-[#f44336] hover:bg-[#d32f2f]"
             >
               Revoke
