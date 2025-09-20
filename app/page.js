@@ -1,12 +1,16 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function SignUpPage() {
+  const router = useRouter();
   const [status, setStatus] = useState("");
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
@@ -18,9 +22,18 @@ export default function Home() {
     e.target.reset();
   };
 
+  const handleAdminLogin = () => {
+    if (password === "village9289admin") {
+      setError("");
+      router.push("/admin");
+    } else {
+      setError("❌ Incorrect password, try again.");
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#1e1e1e] text-[#e0e0e0]">
-      <div className="bg-[#2a2a2a] p-8 rounded-lg shadow-lg w-[350px]">
+    <div className="min-h-screen bg-[#1e1e1e] text-[#e0e0e0] flex flex-col items-center justify-center p-8">
+      <div className="bg-[#2a2a2a] p-8 rounded-lg shadow-lg w-[350px] mb-6">
         <h2 className="text-center text-[#0078d4] text-2xl font-bold mb-6">
           Village Robotics 9289 Sign Up
         </h2>
@@ -65,6 +78,35 @@ export default function Home() {
           )}
         </form>
       </div>
+
+      {!showAdminLogin ? (
+        <button
+          onClick={() => setShowAdminLogin(true)}
+          className="px-4 py-2 rounded bg-[#ff9800] hover:bg-[#f57c00]"
+        >
+          Admin?
+        </button>
+      ) : (
+        <div className="bg-[#2a2a2a] p-6 rounded-lg shadow-lg w-[350px]">
+          <h2 className="text-center text-[#4caf50] text-xl font-bold mb-4">
+            Admin Login
+          </h2>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter admin password"
+            className="w-full p-2 mb-3 rounded bg-[#1e1e1e] border border-[#444] text-[#e0e0e0] focus:outline-none focus:border-[#4caf50]"
+          />
+          <button
+            onClick={handleAdminLogin}
+            className="w-full py-2 rounded bg-[#4caf50] hover:bg-[#388e3c] font-bold"
+          >
+            Login
+          </button>
+          {error && <p className="text-red-500 mt-2 text-center">{error}</p>}
+        </div>
+      )}
     </div>
   );
 }
